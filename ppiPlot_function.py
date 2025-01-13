@@ -11,8 +11,9 @@ import matplotlib as mpl
 import warnings
 import numpy.matlib
 warnings.filterwarnings("ignore")
+import matplotlib.patches as patches
 
-def ppiPlot_function(data, r, az):
+def ppiPlot_function(data, r, az, rect, x_origin=None, y_origin=None, x_large=None, y_large=None):
     
     """
     This function generates PPI (Plan Position Indicator) plots for the reflectivity estimation of a Doppler polarimetric radar.
@@ -21,12 +22,18 @@ def ppiPlot_function(data, r, az):
         data (np.array): Estimated reflectivity matrix. (Dimensions: 'number of azimuths' x 'range estimates').
         'r' (np.array): [1 x M] vector of range dimensions (distance to the radar), in this case in km.
         'az' (np.array): [1 x A] vector of averaged azimuth values.
-            
+        'rect' (bool): Parameter to indicate whether the rectangle is drawn or not. 
+        'x_origin' (float): Value of the x-axis at the bottom-left vertex of the rectangle.
+        'y_origin' (float): Value of the y-axis at the bottom-left vertex of the rectangle.
+        'x_large' (float): Length of the rectangle along the x-axis.
+        'y_large' (float): Length of the rectangle along the y-axis.
     Output:  
         PPI plot for reflectivity
      
     """
-
+    
+    if not isinstance(rect, bool):
+        raise TypeError("The input parameter rect must be of type bool.")
     R1, AZ = np.meshgrid(r, az)
     X = R1 * np.sin(AZ * np.pi/180)
     Y = R1 * np.cos(AZ * np.pi/180)
@@ -58,6 +65,13 @@ def ppiPlot_function(data, r, az):
     cbar.set_label('Reflectivity [dBZ]', fontsize=70)
     ax.set_xlabel('Range [km]', fontsize=70)
     ax.set_ylabel('Range [km]', fontsize=70)
+    
+    if rect==True:
+        if not all(isinstance(parameters, float) for parameters in (x_origin, y_origin, x_large, y_large)):
+            raise TypeError("The input parameters x_origin, y_origin, x_large, and y_large must be of type float.")
+        rect = patches.Rectangle((x_origin, y_origin), x_large, y_large, linewidth=4, edgecolor='black', facecolor='none')
+        ax.add_patch(rect)
+            
     plt.show()
     
     

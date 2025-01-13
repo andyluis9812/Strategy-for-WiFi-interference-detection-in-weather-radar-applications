@@ -467,15 +467,26 @@ scipy.io.savemat(directory_results+'reflectivity', {'reflectivity': ZedBZ_modifi
 #Save the IQ data with interference
 scipy.io.savemat(directory_results+'IQ_data', {'datosIQ': dataIQcpi})
 
+
+#Variables to configure the rectangle's position on the graph.
+x_origin_n=-145.0
+y_origin_n=-50.0
+x_large_n=90.0
+y_large_n=115.0
+
 #Plot the reflectivity of data contaminated with interference over noise
 plt.rcParams.update({
     'text.usetex':True,
     'font.family':'roman',     
     'xtick.labelsize': 70,      
     'ytick.labelsize': 70})
-ppiPlot_function.ppiPlot_function(ZedBZ_modified, rangeVect/1000, azimutAngProm)
+
+ppiPlot_function.ppiPlot_function(ZedBZ_modified, rangeVect/1000, azimutAngProm, True, x_origin_n, y_origin_n, x_large_n, y_large_n)
 
 plt.rcParams['text.usetex']=False
+
+
+
 
 #%%Apply the complete algorithm to the data contaminated with interference over noise
 #############Variables to configure#############
@@ -493,6 +504,7 @@ N=window/separation    #Number of samples used in the estimation
 detections=np.zeros((dataIQcpi.shape[0]-2*L+1, dataIQcpi.shape[1], dataIQcpi.shape[2]))     
 
 for i in np.arange(0, dataIQcpi.shape[2]):
+    print(i)
     for j in np.arange(0, dataIQcpi.shape[1]):
         pulse=dataIQcpi[:, j, i]
         d_c=estadistic_function.estadistic_function(pulse, M, L)
@@ -544,7 +556,7 @@ plt.rcParams.update({
     'font.family':'roman',     
     'xtick.labelsize': 70,      
     'ytick.labelsize': 70})
-ppiPlot_function.ppiPlot_function(ZedBZ_modified, rangeVect/1000, azimutAngProm)
+ppiPlot_function.ppiPlot_function(ZedBZ_modified, rangeVect/1000, azimutAngProm, False)
 
 plt.rcParams['text.usetex']=False
 
@@ -627,13 +639,19 @@ scipy.io.savemat(directory_results+'reflectivity', {'reflectivity': ZedBZ_modifi
 #Save the IQ data with interference
 scipy.io.savemat(directory_results+'IQ_data', {'datosIQ': dataIQcpi})
 
-#Plot the reflectivity of data contaminated with interference over noise
+#Variables to configure the rectangle's position on the graph.
+x_origin_p=35.0
+y_origin_p=5.0
+x_large_p=110.0
+y_large_p=122.0
+
+#Plot the reflectivity of data contaminated with interference over the phenomenon
 plt.rcParams.update({
     'text.usetex':True,
     'font.family':'roman',     
     'xtick.labelsize': 70,      
     'ytick.labelsize': 70})
-ppiPlot_function.ppiPlot_function(ZedBZ_modified, rangeVect/1000, azimutAngProm)
+ppiPlot_function.ppiPlot_function(ZedBZ_modified, rangeVect/1000, azimutAngProm, True, x_origin_p, y_origin_p, x_large_p, y_large_p)
 
 plt.rcParams['text.usetex']=False
 
@@ -653,6 +671,7 @@ N=window/separation    #Number of samples used in the estimation
 detections=np.zeros((dataIQcpi.shape[0]-2*L+1, dataIQcpi.shape[1], dataIQcpi.shape[2]))     
 
 for i in np.arange(0, dataIQcpi.shape[2]):
+    print(i)
     for j in np.arange(0, dataIQcpi.shape[1]):
         pulse=dataIQcpi[:, j, i]
         d_c=estadistic_function.estadistic_function(pulse, M, L)
@@ -704,7 +723,7 @@ plt.rcParams.update({
     'font.family':'roman',     
     'xtick.labelsize': 70,      
     'ytick.labelsize': 70})
-ppiPlot_function.ppiPlot_function(ZedBZ_modified, rangeVect/1000, azimutAngProm)
+ppiPlot_function.ppiPlot_function(ZedBZ_modified, rangeVect/1000, azimutAngProm, False)
 
 plt.rcParams['text.usetex']=False
 
