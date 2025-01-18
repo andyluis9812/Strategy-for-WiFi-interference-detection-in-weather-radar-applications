@@ -9,7 +9,7 @@ import numpy as np
 
 def ofdm_preamble_function(Fs):
     """
-    Function that generates the OFDM preamble at the sampling frequency specified by the parameter Fs.   
+    Function that generates the OFDM preamble for a bandwidth channel of 20 MHz at the sampling frequency specified by the parameter Fs.   
     Input parameters:
     Fs (int): Sampling frequency in MHz.
     

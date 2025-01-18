@@ -4,8 +4,58 @@ Created on Mon Dec 16 08:21:17 2024
 
 @author: andyl
 """
+'''
+This code is organized into cells. To continue, each cell is described below.
 
-# Import libraries
+--------Import libraries cell:
+    In this cell, the libraries used in the code are imported.
+--------Import data cell:
+    In this cell, the data from the weather radars used in this project is imported.
+    It is important to clarify that we do not have permission to share the data 
+    from the Argentinian weather radars. Therefore, this data is not available 
+    to run this code.
+--------OFDM Preamble cell:
+    In this cell, the OFDM preamble is generated and sampled at 4 MHz. This preamble, 
+    sampled at this frequency, is used for all the theoretical analysis conducted in 
+    this project.
+--------Graphics cell:
+    In this cell, we generate several graphs presented in the paper. Specifically, we 
+    produce the PPI graphs using data from the RMA1 weather radar located in Córdoba City. 
+    Additionally, we create a graph showing the in-phase component of two WiFi packets acquired 
+    by this radar, as well as a graph of the detection statistic used in this project for these 
+    two WiFi packets. Furthermore, we generate a graph illustrating the periodic structure of the 
+    OFDM preamble from one of these WiFi packets."
+--------Matched Filter cell:
+    In this cell, we pass the preamble obtained in the OFDM Preamble cell through the matched filter, 
+    and as a result, we obtain the periodic structure at the output of the matched filter.
+--------Detection Probability cell:
+    In this section, we obtain the theoretical curves for different amounts of samples of the detection 
+    statistic used in the L*σ^4 estimation, as well as the ideal curve for the detection probability. Then, 
+    we plot these curves.
+--------Estimated detection probability cell:
+    In this cell, we estimate the detection probability for N=10 and plot both the theoretical curve and the 
+    estimated curve of the detection probability for N=10, as well as the ideal curve of the detection probability.
+--------Calculation of the SNR of the packets cell:
+    In this cell, we calculate the SNR of the WiFi packets acquired from the RMA1 weather radar and select the 
+    packets with the best SNR. Then, we multiply these WiFi packets by constants to achieve a desired SNR in all 
+    of them. Finally, we plot the SNR curve of these WiFi packets.
+--------Location of interference over noise cell:
+    In this cell, we take the WiFi packets obtained in the previous cell and add them to the data acquired from 
+    the RMA6 weather radar, located in Mar del Plata city. These WiFi packets are inserted into a region where only 
+    noise is present. Additionally, the resulting PPI graph is shown.
+--------Apply the complete algorithm to the data contaminated with interference over noise cell:
+    In this cell, we apply the designed algorithm to the data obtained in the previous cell. The resulting PPI graph 
+    is also shown. Additionally, the detection probability is estimated.
+--------Location of the interference over the phenomenon cell:
+    In this cell, we take the WiFi packets obtained in the 'Calculation of the SNR of the Packets' cell and add them 
+    to the data acquired from the RMA6 weather radar, located in Mar del Plata city. These WiFi packets are inserted 
+    into a region where there are weather phenomena along with noise. The resulting PPI graph is also shown.  
+--------Apply the complete algorithm to the data contaminated with interference over the phenomenon cell:
+    In this cell, we apply the designed algorithm to the data obtained in the previous cell. The resulting PPI graph 
+    is also shown. Additionally, the detection probability is estimated.
+'''
+
+#%% Import libraries
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -75,7 +125,7 @@ directory_results='D:/Materias/Doctorado/Delay and Correlate/Paper/Codigo/Result
 
 #%%OFDM Preamble
 
-#Generate the OFDM preamble for a sampling frequency of 4 MHz
+#Generate the OFDM preamble for a 20 MHz bandwidth channel with a sampling frequency of 4 MHz.
 preamble_4M=ofdm_preamble_function.ofdm_preamble_function(4)
 
 #Sequence of short symbols.
@@ -119,7 +169,7 @@ plt.rcParams.update({
     'font.family':'roman',     
     'xtick.labelsize': 70,      
     'ytick.labelsize': 70})
-ppiPlot_function.ppiPlot_function(ZedBZ_modified, rangeVect_graph/1000, azimutAngProm_graph)
+ppiPlot_function.ppiPlot_function(ZedBZ_modified, rangeVect_graph/1000, azimutAngProm_graph, False)
 
 plt.rcParams['text.usetex']=False
 
@@ -166,7 +216,7 @@ plt.figure(figsize=(19, 11))
 plt.plot(distance_vector[0:-2*L+1], estadistic, linewidth=3, color='blue')
 plt.xlim([50, 120])
 plt.ylim([0, 1.05*10**(-8)])
-plt.ylabel('Correlation squared \nmodulus [AU]', fontsize=70, labelpad=122)
+plt.ylabel('Correlation squared \nmodulus [AU]', fontsize=70, labelpad=225)
 plt.xlabel('Range [km]', fontsize=70)
 plt.gca().yaxis.get_offset_text().set_fontsize(70)
 plt.tick_params(axis='x', pad=15)  
@@ -297,7 +347,7 @@ variances=np.zeros(len(snr_vector))
 for i in np.arange(0, len(variances)):
     variances[i]=signal_energy/snr_vector[i]
 
-dp_cfar_realizations=1000       
+dp_cfar_realizations=1000      
 
 cfar_matrix=np.zeros((dp_cfar_realizations, len(variances)),  dtype=complex)           #Matriz donde en cada fila se almaceanará los resultados del delay and correlate
 dp_cfar_detections=np.zeros(len(variances))     
@@ -312,6 +362,7 @@ alfa=N*(((P_FA)**(-1/N))-1)     #Calculate alfa
 #Estimate the detection probability
 
 for j in np.arange(0, len(variances)):
+    print(j)
     real_noise=np.random.normal(0, np.sqrt(variances[j]/2), (dp_cfar_realizations, N*separation+2*L))
     imaginary_noise=np.random.normal(0, np.sqrt(variances[j]/2), (dp_cfar_realizations, N*separation+2*L))
     noise=real_noise+1j*imaginary_noise
@@ -328,6 +379,7 @@ for j in np.arange(0, len(variances)):
     dp_cfar_detections[j] = np.sum(statistic >= threshold)
 
 detection_probability_cfar=dp_cfar_detections/dp_cfar_realizations
+
 
 #Plot the ideal detection probability, the theoretical detection probability for N=10 and the estimated detection probability for N=10
 plt.rcParams.update({
@@ -358,9 +410,9 @@ paq_Pow_db=10*np.log10(paq_Pow)
 
 #Plot the power of the Wifi packets
 plt.figure(figsize=(18, 14))
-plt.title('Gráficos de Relación Señal a Ruido (SNR)', fontsize=70)
+plt.title('SNR', fontsize=70)
 plt.plot(paq_Pow_db)
-plt.xlabel('Número de paquete', fontsize=70)
+plt.xlabel('Index', fontsize=70)
 plt.ylabel('SNR [dB]', fontsize=70)
 plt.grid()
 
@@ -381,9 +433,9 @@ paq_Pow_db=10*np.log10(paq_Pow)
 
 #Plot the corrected power of the WiFi packets
 plt.figure(figsize=(18, 14))
-plt.title('Gráficos de Relación Señal a Ruido (SNR)', fontsize=70)
+plt.title('SNR', fontsize=70)
 plt.plot(paq_Pow_db)
-plt.xlabel('Número de paquete', fontsize=70)
+plt.xlabel('Index', fontsize=70)
 plt.ylabel('SNR [dB]', fontsize=70)
 plt.grid()
 
@@ -484,9 +536,6 @@ plt.rcParams.update({
 ppiPlot_function.ppiPlot_function(ZedBZ_modified, rangeVect/1000, azimutAngProm, True, x_origin_n, y_origin_n, x_large_n, y_large_n)
 
 plt.rcParams['text.usetex']=False
-
-
-
 
 #%%Apply the complete algorithm to the data contaminated with interference over noise
 #############Variables to configure#############
