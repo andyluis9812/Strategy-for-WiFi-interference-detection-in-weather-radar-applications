@@ -77,48 +77,34 @@ import cfar_estimation_function
 # Path from which the data is loaded
 directory = 'D:/Materias/Doctorado/Delay and Correlate/Paper/Codigo/'
 
-file_name1 = 'mis_variables'
+############Dataset from the RMA1 weather radar.
+file_name1 = 'mis_variables'    #Name of the file that contains the dataset
 
-# Load the dataset
+# Load the dataset 
 dict_data = loadmat(directory + file_name1) 
 
-dataIQcpi_paq = np.array(dict_data['dataIQcpi']) 
-rangeVect_paq = np.array(dict_data['rangeVect']) 
-paqWifiRMA1 = np.array(dict_data['paqWifiRMA1']) 
+dataIQcpi_paq = np.array(dict_data['dataIQcpi'])            #Variable that contains the I&Q data from the RMA1 weather radar
+rangeVect_paq = np.array(dict_data['rangeVect'])            #Variable that contains the range vector used in the RMA1 weather radar data
+paqWifiRMA1 = np.array(dict_data['paqWifiRMA1'])            #Variable that contains information about the location of the WiFi packets
+azimutAngProm_paq = np.array(dict_data['azimutAngProm'])    #Variable that contains the azimuth vector used in the RMA1 weather radar data
 
+############Dataset from the RMA6 weather radar.
 file_name2 = 'RMA06_modificada_sin_interferencia_IQ'
 
 # Load the dataset
 dict_data = loadmat(directory + file_name2) 
 
-dataIQcpi = np.array(dict_data['RMA06_modificada_sin_interferencia_IQ']) 
+dataIQcpi = np.array(dict_data['RMA06_modificada_sin_interferencia_IQ'])    #Variable that contains the I&Q data from the RMA6 weather radar
 
 file_name3 = 'Datos_reales_RMA06'
 
 # Load the dataset
 dict_data = loadmat(directory + file_name3) 
 
-rangeVect = np.array(dict_data['rangeVect']) 
-azimutAngProm = np.array(dict_data['azimutAngProm']) 
-num_cpi=int(np.array(dict_data['nroCPIs']))
-num_pulses=int(np.array(dict_data['cpi']))
-
-
-file_name4 = 'RMA01_20180907T142848_Vol1_Bar0'
-
-dict_data = loadmat(directory + file_name4) 
-
-# Load the dataset
-dict_data = loadmat(directory + file_name4) 
-
-dataIQhh = np.array(dict_data['dataIQhh']) 
-
-file_name5= 'variables'
-
-variables_graph = loadmat(directory + file_name5) 
-
-rangeVect_graph = np.array(variables_graph['rangeVect']) 
-azimutAngProm_graph = np.array(variables_graph['azimutAngProm']) 
+rangeVect = np.array(dict_data['rangeVect'])            #Variable that contains the range vector used in the RMA6 weather radar data
+azimutAngProm = np.array(dict_data['azimutAngProm'])    #Variable that contains the azimuth vector used in the RMA6 weather radar data
+num_cpi=int(np.array(dict_data['nroCPIs']))             #Variable that contains the number of CPIs of the RMA6 weather radar data
+num_pulses=int(np.array(dict_data['cpi']))              #Variable that contains the number of pulses of each CPI in the RMA6 weather radar data
 
 # Path where the results are saved
 directory_results='D:/Materias/Doctorado/Delay and Correlate/Paper/Codigo/Resultados/'
@@ -134,27 +120,25 @@ secuence_short_sym_4M=preamble_4M[:32]
 
 #%%Graphics
 
-nr_CPIs=azimutAngProm_graph.shape[1]
-nr_RangeCell=rangeVect_graph.shape[1]
+nr_CPIs=azimutAngProm_paq.shape[1]
+nr_RangeCell=rangeVect_paq.shape[1]
 nr_Pulses=54
 
-dataIQhh = np.reshape(dataIQhh[:, :nr_CPIs*nr_Pulses], (nr_RangeCell, nr_Pulses, nr_CPIs), order='F')
-
-mod_pow = np.zeros((dataIQhh.shape[0], dataIQhh.shape[2]))
+mod_pow = np.zeros((dataIQcpi_paq.shape[0], dataIQcpi_paq.shape[2]))
 
 #Calculate the power
-for i in np.arange(0, dataIQhh.shape[2]):
-    for j in np.arange(0, dataIQhh.shape[0]):
-        correlation = np.correlate(dataIQhh[j, :, i][:], dataIQhh[j, :, i][:], 'full')/nr_Pulses
+for i in np.arange(0, dataIQcpi_paq.shape[2]):
+    for j in np.arange(0, dataIQcpi_paq.shape[0]):
+        correlation = np.correlate(dataIQcpi_paq[j, :, i][:], dataIQcpi_paq[j, :, i][:], 'full')/nr_Pulses
         mod_pow [j, i] = correlation[int((len(correlation)-1)/2)]
 
 #Arrange the range vector to multiply it by the power matrix
 
-new_rangeVect=np.zeros(rangeVect_graph.shape[1])
-for i in np.arange(0, rangeVect_graph.shape[1]):
-    new_rangeVect[i]=rangeVect_graph[0,i]/1000
+new_rangeVect=np.zeros(rangeVect_paq.shape[1])
+for i in np.arange(0, rangeVect_paq.shape[1]):
+    new_rangeVect[i]=rangeVect_paq[0,i]/1000
 
-final_rangeVect=np.zeros((rangeVect_graph.shape[1], nr_CPIs))
+final_rangeVect=np.zeros((rangeVect_paq.shape[1], nr_CPIs))
 for i in np.arange(0, nr_CPIs):
     final_rangeVect[:, i]=new_rangeVect[:]
 
@@ -169,7 +153,7 @@ plt.rcParams.update({
     'font.family':'roman',     
     'xtick.labelsize': 70,      
     'ytick.labelsize': 70})
-ppiPlot_function.ppiPlot_function(ZedBZ_modified, rangeVect_graph/1000, azimutAngProm_graph, False)
+ppiPlot_function.ppiPlot_function(ZedBZ_modified, rangeVect_paq/1000, azimutAngProm_paq, False)
 
 plt.rcParams['text.usetex']=False
 
@@ -407,15 +391,6 @@ for i in np.arange(0, len(paqWifiRMA1)):
     paq_Pow[i]=np.mean((np.abs(paqWifiRMA1[i, 4]))**2)
 
 paq_Pow_db=10*np.log10(paq_Pow)
-
-#Plot the power of the Wifi packets
-plt.figure(figsize=(18, 14))
-plt.title('SNR', fontsize=70)
-plt.plot(paq_Pow_db)
-plt.xlabel('Index', fontsize=70)
-plt.ylabel('SNR [dB]', fontsize=70)
-plt.grid()
-
 paq_Pow_Max=np.max(paq_Pow)
 
 # Packet indices
@@ -431,7 +406,7 @@ for i in ind:
 
 paq_Pow_db=10*np.log10(paq_Pow)
 
-#Plot the corrected power of the WiFi packets
+#Plot the corrected SNR of the WiFi packets
 plt.figure(figsize=(18, 14))
 plt.title('SNR', fontsize=70)
 plt.plot(paq_Pow_db)
