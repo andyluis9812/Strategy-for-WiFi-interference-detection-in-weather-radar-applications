@@ -94,7 +94,7 @@ file_name2 = 'RMA06_IQ_data'
 # Load the dataset
 dict_data = loadmat(directory + file_name2) 
 
-dataIQcpi = np.array(dict_data['RMA06_modificada_sin_interferencia_IQ'])    #Variable that contains the I&Q data from the RMA6 weather radar
+dataIQcpi = np.array(dict_data['RMA06_IQ'])    #Variable that contains the I&Q data from the RMA6 weather radar
 
 file_name3 = 'RMA06_data'
 
@@ -346,7 +346,6 @@ alfa=N*(((P_FA)**(-1/N))-1)     #Calculate alfa
 #Estimate the detection probability
 
 for j in np.arange(0, len(variances)):
-    print(j)
     real_noise=np.random.normal(0, np.sqrt(variances[j]/2), (dp_cfar_realizations, N*separation+2*L))
     imaginary_noise=np.random.normal(0, np.sqrt(variances[j]/2), (dp_cfar_realizations, N*separation+2*L))
     noise=real_noise+1j*imaginary_noise
