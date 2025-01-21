@@ -14,10 +14,6 @@ This code is organized into cells. To continue, each cell is described below.
     It is important to clarify that we do not have permission to share the data 
     from the Argentinian weather radars. Therefore, this data is not available 
     to run this code.
---------OFDM Preamble cell:
-    In this cell, the OFDM preamble is generated and sampled at 4 MHz. This preamble, 
-    sampled at this frequency, is used for all the theoretical analysis conducted in 
-    this project.
 --------Graphics cell:
     In this cell, we generate several graphs presented in the paper. Specifically, we 
     produce the PPI graphs using data from the RMA1 weather radar located in Córdoba City. 
@@ -25,9 +21,12 @@ This code is organized into cells. To continue, each cell is described below.
     by this radar, as well as a graph of the detection statistic used in this project for these 
     two WiFi packets. Furthermore, we generate a graph illustrating the periodic structure of the 
     OFDM preamble from one of these WiFi packets."
+--------OFDM Preamble cell:
+    In this cell, the OFDM preamble is generated. This preamble, is used for all the theoretical 
+    analysis conducted in this project.
 --------Matched Filter cell:
-    In this cell, we pass the preamble obtained in the OFDM Preamble cell through the matched filter, 
-    and as a result, we obtain the periodic structure at the output of the matched filter.
+    In this cell, we pass the sequence of short symbols from the preamble, obtained in the OFDM 
+    Preamble cell, through the matched filter. Finally, we sample the output of the matched filter at 4 MHz.
 --------Detection Probability cell:
     In this section, we obtain the theoretical curves for different amounts of samples of the detection 
     statistic used in the L*σ^4 estimation, as well as the ideal curve for the detection probability. Then, 
@@ -75,10 +74,10 @@ import cfar_estimation_function
 #%% Import data
 
 # Path from which the data is loaded
-directory = '...'
+directory = 'D:/Materias/Doctorado/Delay and Correlate/Paper/Codigo/'
 
 ############Dataset from the RMA1 weather radar.
-file_name1 = 'variables'    #Name of the file that contains the dataset
+file_name1 = 'mis_variables'    #Name of the file that contains the dataset
 
 # Load the dataset 
 dict_data = loadmat(directory + file_name1) 
@@ -89,14 +88,14 @@ paqWifiRMA1 = np.array(dict_data['paqWifiRMA1'])            #Variable that conta
 azimutAngProm_paq = np.array(dict_data['azimutAngProm'])    #Variable that contains the azimuth vector used in the RMA1 weather radar data
 
 ############Dataset from the RMA6 weather radar.
-file_name2 = 'RMA06_IQ_data'
+file_name2 = 'RMA06_modificada_sin_interferencia_IQ'
 
 # Load the dataset
 dict_data = loadmat(directory + file_name2) 
 
-dataIQcpi = np.array(dict_data['RMA06_IQ'])    #Variable that contains the I&Q data from the RMA6 weather radar
+dataIQcpi = np.array(dict_data['RMA06_modificada_sin_interferencia_IQ'])    #Variable that contains the I&Q data from the RMA6 weather radar
 
-file_name3 = 'RMA06_data'
+file_name3 = 'Datos_reales_RMA06'
 
 # Load the dataset
 dict_data = loadmat(directory + file_name3) 
@@ -107,16 +106,7 @@ num_cpi=int(np.array(dict_data['nroCPIs']))             #Variable that contains 
 num_pulses=int(np.array(dict_data['cpi']))              #Variable that contains the number of pulses of each CPI in the RMA6 weather radar data
 
 # Path where the results are saved
-directory_results='...'
-
-#%%OFDM Preamble
-
-#Generate the OFDM preamble for a 20 MHz bandwidth channel with a sampling frequency of 4 MHz.
-preamble_4M=ofdm_preamble_function.ofdm_preamble_function(4)
-
-#Sequence of short symbols.
-
-secuence_short_sym_4M=preamble_4M[:32]
+directory_results='D:/Materias/Doctorado/Delay and Correlate/Paper/Codigo/Resultados/'
 
 #%%Graphics
 
@@ -227,17 +217,26 @@ plt.grid()
 plt.show()
 
 plt.rcParams['text.usetex']=False
+
+#%%OFDM Preamble
+
+#Generate the OFDM preamble for a 20 MHz bandwidth channel
+preamble=ofdm_preamble_function.ofdm_preamble_function()
+
+#Sequence of short symbols.
+secuence_short_sym=preamble[:160]
 #%%Matched Filter
 
 #Marched Filter
-filter_4M=np.ones(4)
+matched_filter=np.ones(20)
 
-filter_output_4M=np.convolve(np.concatenate((secuence_short_sym_4M, secuence_short_sym_4M)), filter_4M, mode='same')
+filter_output=np.convolve(np.concatenate((secuence_short_sym, secuence_short_sym)), matched_filter, mode='same')
 
 #Output of the matched filter
-final_filter_output_4M=filter_output_4M[16:-16]
+final_filter_output=filter_output[80:-80]
 
-
+#Output of the matched filter sampled at 4 MHz
+final_filter_output_4M=final_filter_output[::5]
 #%%Detection Probability
 
 M=16            #The repetition interval length
@@ -346,6 +345,7 @@ alfa=N*(((P_FA)**(-1/N))-1)     #Calculate alfa
 #Estimate the detection probability
 
 for j in np.arange(0, len(variances)):
+    print(j)
     real_noise=np.random.normal(0, np.sqrt(variances[j]/2), (dp_cfar_realizations, N*separation+2*L))
     imaginary_noise=np.random.normal(0, np.sqrt(variances[j]/2), (dp_cfar_realizations, N*separation+2*L))
     noise=real_noise+1j*imaginary_noise
@@ -362,7 +362,6 @@ for j in np.arange(0, len(variances)):
     dp_cfar_detections[j] = np.sum(statistic >= threshold)
 
 detection_probability_cfar=dp_cfar_detections/dp_cfar_realizations
-
 
 #Plot the ideal detection probability, the theoretical detection probability for N=10 and the estimated detection probability for N=10
 plt.rcParams.update({

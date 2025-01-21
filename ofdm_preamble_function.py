@@ -7,14 +7,12 @@ Created on Wed Jan  8 11:39:49 2025
 
 import numpy as np
 
-def ofdm_preamble_function(Fs):
+def ofdm_preamble_function():
     """
-    Function that generates the OFDM preamble for a bandwidth channel of 20 MHz at the sampling frequency specified by the parameter Fs.   
-    Input parameters:
-    Fs (int): Sampling frequency in MHz.
+    Function that generates the OFDM preamble for a bandwidth channel of 20 MHz 
     
     Output parameters:
-    np.array: OFDM preamble samples sampled at the specified frequency.
+    np.array: OFDM preamble 
     """
     short_sym=np.sqrt(13/6)*np.array([0, 0, 1+1j, 0, 0, 0, -1-1j, 0, 0, 0, 1+1j, 0, 0, 0, -1-1j, 0, 0, 0, -1-1j, 0, 0, 0, 1+1j, 0, 0, 0, 0, 0, 0, 0, -1-1j, 0, 0, 0, -1-1j, 0, 0, 0, 1+1j, 0, 0, 0, 1+1j, 0, 0, 0, 1+1j, 0, 0, 0, 1+1j, 0, 0])
         
@@ -37,4 +35,4 @@ def ofdm_preamble_function(Fs):
     
     preamble=np.concatenate((final_short_sym, final_short_sym, final_short_sym, final_short_sym, final_short_sym, final_short_sym, final_short_sym, final_short_sym, final_short_sym, final_short_sym, cyclic_prefix, final_large_sym, final_large_sym))
     
-    return preamble[::int(np.floor(len(preamble)/(16*Fs)))]
+    return preamble
