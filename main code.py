@@ -74,10 +74,10 @@ import cfar_estimation_function
 #%% Import data
 
 # Path from which the data is loaded
-directory = 'D:/Materias/Doctorado/Delay and Correlate/Paper/Codigo/'
+directory = '...'
 
 ############Dataset from the RMA1 weather radar.
-file_name1 = 'mis_variables'    #Name of the file that contains the dataset
+file_name1 = 'variables'    #Name of the file that contains the dataset
 
 # Load the dataset 
 dict_data = loadmat(directory + file_name1) 
@@ -88,14 +88,14 @@ paqWifiRMA1 = np.array(dict_data['paqWifiRMA1'])            #Variable that conta
 azimutAngProm_paq = np.array(dict_data['azimutAngProm'])    #Variable that contains the azimuth vector used in the RMA1 weather radar data
 
 ############Dataset from the RMA6 weather radar.
-file_name2 = 'RMA06_modificada_sin_interferencia_IQ'
+file_name2 = 'RMA06_IQ_data'
 
 # Load the dataset
 dict_data = loadmat(directory + file_name2) 
 
-dataIQcpi = np.array(dict_data['RMA06_modificada_sin_interferencia_IQ'])    #Variable that contains the I&Q data from the RMA6 weather radar
+dataIQcpi = np.array(dict_data['RMA06_IQ'])    #Variable that contains the I&Q data from the RMA6 weather radar
 
-file_name3 = 'Datos_reales_RMA06'
+file_name3 = 'RMA06_data'
 
 # Load the dataset
 dict_data = loadmat(directory + file_name3) 
@@ -106,7 +106,7 @@ num_cpi=int(np.array(dict_data['nroCPIs']))             #Variable that contains 
 num_pulses=int(np.array(dict_data['cpi']))              #Variable that contains the number of pulses of each CPI in the RMA6 weather radar data
 
 # Path where the results are saved
-directory_results='D:/Materias/Doctorado/Delay and Correlate/Paper/Codigo/Resultados/'
+directory_results='...'
 
 #%%Graphics
 
