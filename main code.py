@@ -345,7 +345,6 @@ alfa=N*(((P_FA)**(-1/N))-1)     #Calculate alfa
 #Estimate the detection probability
 
 for j in np.arange(0, len(variances)):
-    print(j)
     real_noise=np.random.normal(0, np.sqrt(variances[j]/2), (dp_cfar_realizations, N*separation+2*L))
     imaginary_noise=np.random.normal(0, np.sqrt(variances[j]/2), (dp_cfar_realizations, N*separation+2*L))
     noise=real_noise+1j*imaginary_noise
