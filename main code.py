@@ -676,6 +676,73 @@ ppiPlot_function.ppiPlot_function(ZedBZ_modified, rangeVect/1000, azimutAngProm,
 
 plt.rcParams['text.usetex']=False
 
+
+#In phase component of a pulse in presence of weather phenomenon. Stadistic and threshold of a pulse in presence of weather phenomenon
+
+packet=dataIQcpi[:, 5, 174]
+
+M=20            #The repetition interval length
+L=20            #The separation between two adjacent intervals
+P_FA = 1e-9     #False alarm probability
+
+#Parameters for estimation
+window=440             #Number of samples of the window used for estimation
+guard=40               #Number of guard samples between the sample of interest and the estimation window
+separation=40          #Separation between the samples used in the estimation
+
+N=window/separation    #Number of samples used in the estimation
+
+stadistic=estadistic_function.estadistic_function(packet, M, L)
+
+estimation=cfar_estimation_function.cfar_estimation_function(stadistic, window, guard, separation)
+
+threshold=threshold_function.threshold_function(P_FA, estimation, N)
+
+#Graph of the in-phase component of a pulse in the presence of weather phenomenon
+
+plt.rcParams.update({
+    'text.usetex':True,
+    'font.family':'roman',     
+    'xtick.labelsize': 70,      
+    'ytick.labelsize': 70})
+
+plt.figure(figsize=(22, 12))
+
+plt.plot(rangeVect[0][:]/1000, packet, linewidth=1, color='blue')
+plt.xticks(fontsize=70)
+plt.yticks(fontsize=70)
+plt.xlabel('Range [km]', fontsize=70)
+plt.ylabel('In-phase component \n[AU]', fontsize=70)
+plt.xlim([rangeVect[0][2400]/1000, rangeVect[0][3600]/1000])
+plt.ylim([-0.02, 0.02])
+plt.gca().yaxis.get_offset_text().set_fontsize(70)
+plt.grid()
+
+
+plt.rcParams['text.usetex']=False
+
+#Graph of the statistic and the threshold of a pulse in presence of weather phenomenon
+plt.rcParams.update({
+    'text.usetex':True,
+    'font.family':'roman',     
+    'xtick.labelsize': 70,      
+    'ytick.labelsize': 70})
+
+plt.figure(figsize=(22, 12))
+plt.plot(rangeVect[0][:-39]/1000, stadistic, linewidth=3, label='Statistic', color='blue')
+plt.plot(rangeVect[0][:-39]/1000, threshold, linewidth=3, label='Threshold', color='red')
+plt.xticks(fontsize=70)
+plt.yticks(fontsize=70)
+plt.xlabel('Range [km]', fontsize=70)
+plt.ylabel('Amplitude [AU]', fontsize=70)
+plt.xlim([rangeVect[0][2400]/1000, rangeVect[0][3600]/1000])
+plt.ylim([0, 0.4*10**(-5)])
+plt.gca().yaxis.get_offset_text().set_fontsize(70)
+plt.grid()
+plt.legend(fontsize=70, loc='upper right')
+
+plt.rcParams['text.usetex']=False
+
 #%%Apply the complete algorithm to the data contaminated with interference over the phenomenon
 #############Variables to configure#############
 M=20            #The repetition interval length
